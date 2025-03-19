@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Quote extends Model
 {
    use HasFactory;
-   protected $fillable = ['id','content', 'author'];
+   
+   protected $fillable = ['id','content', 'author', 'user_id'];
 
    public function user()
    {

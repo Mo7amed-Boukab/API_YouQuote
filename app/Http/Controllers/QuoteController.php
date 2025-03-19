@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreQuoteRequest;
+use App\Http\Requests\UpdateQuoteRequest;
 use App\Models\Quote;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
-class QuoteController extends Controller
+class QuoteController extends Controller 
 {
 
     public function index()
@@ -15,43 +18,33 @@ class QuoteController extends Controller
         return response()->json(Quote::all(), 200);
     }
 
-    public function store(Request $request)
+    public function store(StoreQuoteRequest $request)
     {
-        $data = $request->validate([
-         'content' => 'required|string',
-         'author' => 'required|string',
-        ]);
-
+        $data = $request->validated();
+        $data['user_id'] = Auth::id();
         Quote::create($data);
-        return response()->json(['message' => 'New Quote is added successfully'], 201);
+        return response()->json(['message' => 'New Quote added successfully', 'Quote' => $data], 201);
     }
 
 
-    public function show(string $id)
+    public function show(Quote $quote)
     {
-        $quote = Quote::findOrFail($id);
         $quote->increment('popularity');
-        return response()->json($quote, 200);
+        return response()->json(['Quote' =>$quote], 200);
     }
 
 
-    public function update(Request $request, string $id)
+    public function update(UpdateQuoteRequest $request, Quote $quote)
     {
-        $newData = $request->validate([
-         'content' => 'required|string',
-         'author' => 'required|string',
-        ]);
-
-        $quote = Quote::findOrFail($id);
+        $newData = $request->validated();
         $quote->update($newData);
 
-        return response()->json(['message' => 'The Quote is updated successfully.'], 200);
+        return response()->json(['message' => 'The Quote is updated successfully.', 'quote' => $newData], 200);
     }
 
 
-    public function destroy(string $id)
+    public function destroy(Quote $quote)
     {
-        $quote = Quote::findOrFail($id);
         $quote->delete();
         return response()->json(['message' => 'The Quote is deleted successfully.'], 200);
     }
@@ -63,7 +56,7 @@ class QuoteController extends Controller
         if (empty($quotes)) {
            return response()->json(['message' => 'No quote found.'], 404);
        }
-        return response()->json($quotes, 200);
+        return response()->json(['quotes'=> $quotes], 200);
     }
 
 
@@ -73,9 +66,9 @@ class QuoteController extends Controller
         if ($quotes->isEmpty()) {
            return response()->json(['message' => 'No popular quotes found.'], 404);
         }
-        return response()->json($quotes, 200);
+        return response()->json(['quotes' => $quotes], 200);
     }
-    
+
 
     public function filterByWord($numberWords){
 
@@ -83,7 +76,7 @@ class QuoteController extends Controller
       if (empty($quotes)) {
          return response()->json(['message' => 'No quote found.'], 404);
       }
-      return response()->json($quotes, 200);
+      return response()->json(['quotes' => $quotes], 200);
     }
 
 }

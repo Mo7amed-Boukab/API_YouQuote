@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 
-class UserController extends Controller
+class AuthController extends Controller
 {
     public function register(RegisterRequest $request){
 
@@ -21,7 +21,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password) 
         ]);
         
-        return response()->json(['message' => 'User Registred successfully','user' => $user], 201);
+        return response()->json(['message' => 'User Registered successfully', 'user' => $user], 201);
     }
 
 
@@ -33,15 +33,19 @@ class UserController extends Controller
             return response()->json(['message' => 'Email or Password incorrect'], 401);
         }
 
-        $user = User::where('email', $request->email)->FirstOrFail();
+        $user = User::where('email', $request->email)->firstOrFail();
         $token = $user->createToken('auth_Token')->plainTextToken;
 
-        return response()->json(['message' => 'You Logged In successfully', 'user' => $user, 'Token' => $token], 201);
+        return response()->json([
+            'message' => 'You Logged In successfully', 
+            'user' => $user, 
+            'token' => $token
+        ], 200);
     }
 
 
     public function logout(Request $request){
        $request->user()->currentAccessToken()->delete();
-       return response()->json(['message' => 'You Logged out successfully']);
+       return response()->json(['message' => 'You Logged out successfully'], 200);
     }
 }

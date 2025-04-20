@@ -23,8 +23,10 @@ class StoreQuoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-          'content' => 'required|string',
-          'author' => 'required|string'
+         'content' => 'required|string',
+         'author' => 'required|string',
+         'category_id' => 'required|exists:categories,id',
+         'tags' => 'array',
         ];
     }
 }

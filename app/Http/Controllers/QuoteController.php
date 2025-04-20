@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreQuoteRequest;
 use App\Http\Requests\UpdateQuoteRequest;
 use App\Models\Quote;
-use App\Models\User;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -22,8 +22,26 @@ class QuoteController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
-        Quote::create($data);
-        return response()->json(['message' => 'New Quote added successfully', 'Quote' => $data], 201);
+        
+        $quote = Quote::create($data);
+        
+        if ($request->has('tags')) {
+            $tagIds = [];
+            foreach ($request->tags as $tag) {
+                if (isset($tag['id'])) {
+                    $tagIds[] = $tag['id'];
+                } elseif (isset($tag['name'])) {
+                    $newTag = Tag::create(['name' => $tag['name']]);
+                    $tagIds[] = $newTag->id;
+                }
+            }
+            $quote->tags()->attach($tagIds);
+        }
+        
+        return response()->json([
+            'message' => 'New Quote added successfully',
+            'Quote' => $quote->load('tags')
+        ], 201);
     }
 
 

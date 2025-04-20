@@ -22,8 +22,10 @@ class UpdateQuoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-         'content' => 'required|string',
-         'author' => 'required|string',
+         'content' => 'string',
+         'author' => 'string',
+         'category_id' => 'exists:categories,id',
+         'tags' => 'array',
         ];
     }
 }

@@ -30,12 +30,14 @@ class User extends Authenticatable
 
     public function likes()
     {
-        return $this->hasMany(Like::class);
+        return $this->belongsToMany(Quote::class, 'likes', 'user_id', 'quote_id')
+            ->withTimestamps();
     }
 
     public function favorites()
     {
-        return $this->hasMany(Favorite::class);
+        return $this->belongsToMany(Quote::class, 'favorites', 'user_id', 'quote_id')
+            ->withTimestamps();
     }
 
     /**

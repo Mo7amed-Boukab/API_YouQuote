@@ -28,12 +28,14 @@ class Quote extends Model
 
    public function likes()
    {
-       return $this->hasMany(Like::class);
+       return $this->belongsToMany(User::class, 'likes', 'quote_id', 'user_id')
+           ->withTimestamps();
    }
 
    public function favorites()
    {
-       return $this->hasMany(Favorite::class);
+       return $this->belongsToMany(User::class, 'favorites', 'quote_id', 'user_id')
+           ->withTimestamps();
    }
 
    public function isLikedBy(User $user)
@@ -44,5 +46,17 @@ class Quote extends Model
    public function isFavoritedBy(User $user)
    {
        return $this->favorites()->where('user_id', $user->id)->exists();
+   }
+
+   public function favoritedBy()
+   {
+       return $this->belongsToMany(User::class, 'favorites', 'quote_id', 'user_id')
+           ->withTimestamps();
+   }
+   
+   public function likedBy()
+   {
+       return $this->belongsToMany(User::class, 'likes', 'quote_id', 'user_id')
+           ->withTimestamps();
    }
 }

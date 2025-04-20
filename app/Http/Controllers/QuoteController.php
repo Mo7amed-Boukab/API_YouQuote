@@ -97,4 +97,77 @@ class QuoteController extends Controller
       return response()->json(['quotes' => $quotes], 200);
     }
 
+    public function addToFavorites(Quote $quote)
+    {
+        $user = Auth::user();
+        
+        if ($user->favorites()->where('quote_id', $quote->id)->exists()) {
+            return response()->json(['message' => 'Quote already in favorites'], 400);
+        }
+        
+        $user->favorites()->attach($quote->id);
+        
+        return response()->json([
+            'message' => 'Quote added to favorites successfully',
+            'favorites_count' => $quote->favorites()->count()
+        ], 201);
+    }
+    
+    public function removeFromFavorites(Quote $quote)
+    {
+        $user = Auth::user();
+        
+        if (!$user->favorites()->where('quote_id', $quote->id)->exists()) {
+            return response()->json(['message' => 'Quote not in favorites'], 404);
+        }
+        
+        $user->favorites()->detach($quote->id);
+        
+        return response()->json([
+            'message' => 'Quote removed from favorites successfully',
+            'favorites_count' => $quote->favorites()->count()
+        ]);
+    }
+    
+    public function like(Quote $quote)
+    {
+        $user = Auth::user();
+        
+        if ($user->likes()->where('quote_id', $quote->id)->exists()) {
+            return response()->json(['message' => 'Quote already liked'], 400);
+        }
+        
+        $user->likes()->attach($quote->id);
+        
+        return response()->json([
+            'message' => 'Quote liked successfully',
+            'likes_count' => $quote->likes()->count()
+        ], 201);
+    }
+    
+    public function unlike(Quote $quote)
+    {
+        $user = Auth::user();
+        
+        if (!$user->likes()->where('quote_id', $quote->id)->exists()) {
+            return response()->json(['message' => 'Quote not liked'], 404);
+        }
+        
+        $user->likes()->detach($quote->id);
+        
+        return response()->json([
+            'message' => 'Quote unliked successfully',
+            'likes_count' => $quote->likes()->count()
+        ]);
+    }
+
+    public function getFavorites()
+    {
+        $user = Auth::user();
+        $favorites = $user->favorites()->get();
+        return response()->json([
+            'favorites' => $favorites
+        ], 200);
+    }
+
 }
